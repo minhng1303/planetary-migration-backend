@@ -1,22 +1,33 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlanetaryMigration.Domain.Entities;
 using PlanetaryMigration.Domain.Enums;
+using System.Reflection.Emit;
 
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Planet> Planets => Set<Planet>();
+    public DbSet<Factor> Factors => Set<Factor>();
     public DbSet<PlanetFactor> PlanetFactors => Set<PlanetFactor>();
     public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        builder.Entity<Planet>().HasData(
-            new Planet { Id = 1, Name = "Proxima Centauri b" },
-            new Planet { Id = 2, Name = "TRAPPIST-1e" },
-            new Planet { Id = 3, Name = "Kepler-442b" }
-        );
+        builder.Entity<PlanetFactor>()
+        .HasIndex(pf => new { pf.PlanetId, pf.FactorId })
+        .IsUnique();
+
+        builder.Entity<PlanetFactor>()
+            .HasOne(pf => pf.Planet)
+            .WithMany(p => p.PlanetFactors)
+            .HasForeignKey(pf => pf.PlanetId);
+
+        builder.Entity<PlanetFactor>()
+            .HasOne(pf => pf.Factor)
+            .WithMany(f => f.PlanetFactors)
+            .HasForeignKey(pf => pf.FactorId);
+
 
         builder.Entity<User>().HasData(
             new User

@@ -8,13 +8,12 @@ public class PlanetFactor
 
     public int PlanetId { get; set; }
     [JsonIgnore]
-    public Planet? Planet { get; set; }
+    public Planet Planet { get; set; } = null!;
 
-    public string Name { get; set; } = string.Empty;
+    public int FactorId { get; set; }
+    [JsonIgnore]
+    public Factor Factor { get; set; } = null!;
 
     public double Value { get; set; }
-
-    public string? Unit { get; set; }  
-
-    public double Weight { get; set; }
 }
+

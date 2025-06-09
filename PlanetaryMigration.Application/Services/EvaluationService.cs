@@ -1,56 +1,43 @@
-﻿using PlanetaryMigration.Application.Interfaces;
-using PlanetaryMigration.Domain.Entities;
+﻿using AutoMapper;
+using PlanetaryMigration.Application.Interfaces;
+using PlanetaryMigration.Domain.DTOs;
 
 namespace PlanetaryMigration.Application.Services;
 
 public class EvaluationService : IEvaluationService
 {
-    public EvaluationResult EvaluatePlanets(IEnumerable<Planet> planets)
+    private readonly AppDbContext _context;
+    private readonly IMapper _mapper;
+    public EvaluationService(AppDbContext context, IMapper mapper)
     {
-        var results = new List<PlanetScore>();
+        _context = context;
+        _mapper = mapper;
+    }
 
-        foreach (var planet in planets)
-        {
-            double score = 0;
-            double totalWeight = 0;
+    public IQueryable<PlanetDto> EvaluatePlanets()
+    {
+        var query = _context.Planets
+                .Where(x => x.PlanetFactors.Count > 0)
+                .Take(3)
+                .Select(p => new PlanetDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    PlanetScore = p.PlanetFactors.Sum(x => x.Value * x.Factor.Weight) / p.PlanetFactors.Count,
+                    Factors = p.PlanetFactors.Select(x => new PlanetFactorDto()
+                    {
+                        Id = x.Id,
+                        PlanetId = x.PlanetId,
+                        Name = x.Factor.Name,
+                        Value = x.Value,
+                        Unit = x.Factor.Unit,
+                        Weight = x.Factor.Weight
+                    }).ToList()
+                }).OrderBy(x => x.PlanetScore);
 
-            foreach (var factor in planet.Factors)
-            {
-                score += factor.Value * factor.Weight;
-                totalWeight += factor.Weight;
-            }
 
-            results.Add(new PlanetScore
-            {
-                PlanetId = planet.Id,
-                PlanetName = planet.Name,
-                Score = totalWeight > 0 ? score / totalWeight : 0
-            });
-        }
-
-        var bestPlanet = results.OrderByDescending(r => r.Score).First();
-
-        return new EvaluationResult
-        {
-            PlanetScores = results,
-            BestPlanetId = bestPlanet.PlanetId,
-            BestPlanetName = bestPlanet.PlanetName,
-            EvaluationDate = DateTime.UtcNow
-        };
+        return query;
     }
 }
 
-public record PlanetScore
-{
-    public int PlanetId { get; init; }
-    public string PlanetName { get; init; } = string.Empty;
-    public double Score { get; init; }
-}
-
-public record EvaluationResult
-{
-    public List<PlanetScore> PlanetScores { get; init; } = new();
-    public int BestPlanetId { get; init; }
-    public string BestPlanetName { get; init; } = string.Empty;
-    public DateTime EvaluationDate { get; init; }
-}

@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlanetaryMigration.Application.Interfaces;
 using PlanetaryMigration.Application.Models;
+using PlanetaryMigration.Domain.DTOs;
 using PlanetaryMigration.Domain.Entities;
 using PlanetaryMigration.Domain.Enums;
 using System.Security.Claims;
@@ -25,7 +26,7 @@ namespace PlanetaryMigration.Application.Services
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
             var assignedId = int.Parse(user.FindFirst("AssignedPlanetId")?.Value ?? "0");
 
-            IQueryable<Planet> query = _context.Planets.Include(p => p.Factors);
+            IQueryable<Planet> query = _context.Planets.Include(p => p.PlanetFactors);
 
             return role switch
             {
@@ -36,8 +37,27 @@ namespace PlanetaryMigration.Application.Services
             };
         }
 
-        public Planet? GetPlanetById(int id) =>
-            _context.Planets.Include(p => p.Factors).FirstOrDefault(p => p.Id == id);
+        public PlanetDto? GetPlanetById(int id)
+        {
+            return _context.Planets
+                .Where(p => p.Id == id)
+                .Select(p => new PlanetDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    Factors = p.PlanetFactors.Select(pf => new PlanetFactorDto
+                    {
+                        Id = pf.Id,
+                        PlanetId = pf.PlanetId,
+                        Name = pf.Factor.Name,
+                        Value = pf.Value,
+                        Unit = pf.Factor.Unit,
+                        Weight = pf.Factor.Weight
+                    }).ToList()
+                })
+                .FirstOrDefault();
+        }
 
         public Planet CreatePlanet(CreatePlanetRequest planet)
         {
@@ -47,7 +67,7 @@ namespace PlanetaryMigration.Application.Services
             {
                 Name = planet.Name,
                 Description = planet.Description,
-                Factors = factors
+                PlanetFactors = factors
             };
             _context.Planets.Add(newPlanet);
             _context.SaveChanges();

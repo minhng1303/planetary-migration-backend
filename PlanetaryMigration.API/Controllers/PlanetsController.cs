@@ -1,14 +1,8 @@
 // PlanetaryMigration.API/Controllers/PlanetsController.cs
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using PlanetaryMigration.Application.Interfaces;
 using PlanetaryMigration.Application.Models;
 using PlanetaryMigration.Domain.Entities;
-using PlanetaryMigration.Domain.Enums;
-using System;
-using System.Numerics;
-using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -17,15 +11,25 @@ public class PlanetsController : ControllerBase
 {
     private readonly IPlanetService _planetService;
 
-    public PlanetsController(IPlanetService planetService)
+    private readonly IEvaluationService _evaluationService;
+
+    public PlanetsController(IPlanetService planetService, IEvaluationService evaluationService)
     {
         _planetService = planetService;
+        _evaluationService = evaluationService;
     }
 
     [HttpGet]
     public IActionResult GetPlanets()
     {
         var planets = _planetService.GetAccessiblePlanets(User).ToList();
+        return Ok(planets);
+    }
+
+    [HttpGet("get-planet-with-statistic")]
+    public IActionResult GetPlanetsWithStatistic()
+    {
+        var planets = _evaluationService.EvaluatePlanets().ToList();
         return Ok(planets);
     }
 
@@ -62,20 +66,6 @@ public class PlanetsController : ControllerBase
     {
         _planetService.DeletePlanet(id);
         return NoContent();
-    }
-
-    [HttpPost("{id}/factors")]
-    public IActionResult AddFactor(int id, [FromBody] PlanetFactor factor)
-    {
-        try
-        {
-            var added = _planetService.AddFactorToPlanet(id, factor, User);
-            return CreatedAtAction(nameof(GetPlanet), new { id }, added);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return Forbid();
-        }
     }
 }
 

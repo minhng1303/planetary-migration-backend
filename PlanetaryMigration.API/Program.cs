@@ -23,17 +23,21 @@ builder.Services.AddCors(options =>
 // Add services
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure(         
-            maxRetryCount: 5,                                    
-            maxRetryDelay: TimeSpan.FromSeconds(10),            
-            errorNumbersToAdd: null                              
-        )
-    )
+    builder.Configuration.GetConnectionString("DefaultConnection"),
+    sqlOptions =>
+    {
+        sqlOptions.MigrationsAssembly("PlanetaryMigration.Infrastructure");
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
+        );
+    })
 );
 
 builder.Services.AddScoped<IEvaluationService, EvaluationService>();
 builder.Services.AddScoped<IPlanetService, PlanetService>();
+builder.Services.AddScoped<IFactorService, FactorService>();
 
 builder.Services.AddAutoMapper(typeof(FactorProfile).Assembly);
 
