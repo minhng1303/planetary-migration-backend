@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanetaryMigration.API", "PlanetaryMigration.API\PlanetaryMigration.API.csproj", "{687B0D61-3807-7978-78C7-78EDD2056BDB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanetaryMigration.Domain", "PlanetaryMigration.Domain\PlanetaryMigration.Domain.csproj", "{5465E14D-63AC-5F18-37A8-CEA2EC790AC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanetaryMigration.Application", "PlanetaryMigration.Application\PlanetaryMigration.Application.csproj", "{3B370AB6-93A8-4387-9E41-07E55DE9E722}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanetaryMigration.Infrastructure", "PlanetaryMigration.Infrastructure\PlanetaryMigration.Infrastructure.csproj", "{DDA29B87-3E20-4D06-BD79-92AFD46ED7C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{687B0D61-3807-7978-78C7-78EDD2056BDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{687B0D61-3807-7978-78C7-78EDD2056BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{687B0D61-3807-7978-78C7-78EDD2056BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{687B0D61-3807-7978-78C7-78EDD2056BDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5465E14D-63AC-5F18-37A8-CEA2EC790AC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5465E14D-63AC-5F18-37A8-CEA2EC790AC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5465E14D-63AC-5F18-37A8-CEA2EC790AC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5465E14D-63AC-5F18-37A8-CEA2EC790AC1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B370AB6-93A8-4387-9E41-07E55DE9E722}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B370AB6-93A8-4387-9E41-07E55DE9E722}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B370AB6-93A8-4387-9E41-07E55DE9E722}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B370AB6-93A8-4387-9E41-07E55DE9E722}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDA29B87-3E20-4D06-BD79-92AFD46ED7C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDA29B87-3E20-4D06-BD79-92AFD46ED7C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDA29B87-3E20-4D06-BD79-92AFD46ED7C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDA29B87-3E20-4D06-BD79-92AFD46ED7C8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {88C1E9C2-0D26-41BC-BD74-3B0CBE9CEC03}
+	EndGlobalSection
+EndGlobal

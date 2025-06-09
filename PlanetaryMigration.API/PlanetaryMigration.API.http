@@ -1,0 +1,6 @@
+@PlanetaryMigration.API_HostAddress = http://localhost:5225
+
+GET {{PlanetaryMigration.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
