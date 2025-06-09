@@ -1,12 +1,11 @@
-// PlanetaryMigration.API/Controllers/PlanetsController.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlanetaryMigration.Application.Interfaces;
-using PlanetaryMigration.Application.Models;
 using PlanetaryMigration.Domain.Entities;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]]
+[Authorize]
 public class FactorsController : ControllerBase
 {
     private readonly IFactorService _factorService;
@@ -23,19 +22,39 @@ public class FactorsController : ControllerBase
         return Ok(factors);
     }
 
-    //[HttpPost("{id}/factors")]
-    //public IActionResult AddFactor(int id, [FromBody] PlanetFactor factor)
-    //{
-    //    try
-    //    {
-    //        var added = _planetService.AddFactorToPlanet(id, factor, User);
-    //        return CreatedAtAction(nameof(GetPlanet), new { id }, added);
-    //    }
-    //    catch (UnauthorizedAccessException)
-    //    {
-    //        return Forbid();
-    //    }
-    //}
+    [HttpGet("{id}")]
+    public IActionResult GetFactor(int id)
+    {
+        var factor = _factorService.GetFactorById(id);
+        if (factor == null) return NotFound();
+        return Ok(factor);
+    }
+
+    [HttpPost]
+    public IActionResult CreateFactor([FromBody] Factor factor)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+        var createdFactor = _factorService.CreateFactor(factor);
+        return CreatedAtAction(nameof(GetFactor), new { id = createdFactor.Id }, createdFactor);
+    }
+
+    [HttpPut("{id}")]
+    public IActionResult UpdateFactor(int id, [FromBody] Factor factor)
+    {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
+        var updated = _factorService.UpdateFactor(id, factor);
+        if (!updated) return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteFactor(int id)
+    {
+        var deleted = _factorService.DeleteFactor(id);
+        if (!deleted) return NotFound();
+
+        return NoContent();
+    }
 }
-
-

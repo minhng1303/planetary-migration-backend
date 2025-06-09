@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace PlanetaryMigration.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609094758_AddPlanetTypeToPlanet")]
+    partial class AddPlanetTypeToPlanet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,7 +132,7 @@ namespace PlanetaryMigration.Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            PasswordHash = "$2a$11$trDWxV3Too.oNSBBKI7PLOJr4FqodQlozqhPDWhhKLLWE4v.bnV4a",
+                            PasswordHash = "$2a$11$/Yo7ltMhx826n3vtZowiveFotURQMXX32cTYQeIg73v3ER266mg86",
                             Role = 0,
                             Username = "superadmin"
                         },
@@ -137,7 +140,7 @@ namespace PlanetaryMigration.Infrastructure.Migrations
                         {
                             Id = 2,
                             AssignedPlanetId = 1,
-                            PasswordHash = "$2a$11$xB5ZqDle4mZCl8iyKpzpVemXpLZVZMGhlShnsLsT0A8ilDzjJKld.",
+                            PasswordHash = "$2a$11$ImsaNI2SC2p9jb8yXzY/3u3r6/x0ADq4k9DXGFT5YugbH4Th80HSS",
                             Role = 1,
                             Username = "admin1"
                         });

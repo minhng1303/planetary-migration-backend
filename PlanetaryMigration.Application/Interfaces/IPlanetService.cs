@@ -8,11 +8,10 @@ namespace PlanetaryMigration.Application.Interfaces
     public interface IPlanetService
     {
         IQueryable<Planet> GetAccessiblePlanets(ClaimsPrincipal user);
-        PlanetDto? GetPlanetById(int id);
-        Planet CreatePlanet(CreatePlanetRequest planet);
+        PlanetDto? GetPlanetById(int id, ClaimsPrincipal user);
+        Planet CreatePlanet(CreatePlanetRequest planet, ClaimsPrincipal user);
         void UpdatePlanet(int id, Planet planet, ClaimsPrincipal user);
-        void DeletePlanet(int id);
-        PlanetFactor AddFactorToPlanet(int planetId, PlanetFactor factor, ClaimsPrincipal user);
+        void DeletePlanet(int id, ClaimsPrincipal user);
         bool HasAccessToPlanet(int planetId, ClaimsPrincipal user);
     }
 }

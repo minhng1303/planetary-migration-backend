@@ -12,13 +12,10 @@ namespace PlanetaryMigration.Application.Services
     public class PlanetService : IPlanetService
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public PlanetService(AppDbContext context, IMapper mapper)
+        public PlanetService(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
-
         }
 
         public IQueryable<Planet> GetAccessiblePlanets(ClaimsPrincipal user)
@@ -31,21 +28,26 @@ namespace PlanetaryMigration.Application.Services
             return role switch
             {
                 nameof(UserRole.PlanetAdmin) => query.Where(p => p.Id == assignedId),
-                nameof(UserRole.ViewerType1) => query.Where(p => p.Id == 1),
-                nameof(UserRole.ViewerType2) => query.Where(p => p.Id == 1 || p.Id == 3),
-                _ => query
+                nameof(UserRole.ViewerType1) => query.Where(p => p.PlanetType == PlannetType.TYPE_1.ToString()),
+                nameof(UserRole.ViewerType2) => query.Where(p => p.PlanetType == PlannetType.TYPE_2.ToString()),
+                nameof(UserRole.SuperAdmin) => query,
+                _ => Enumerable.Empty<Planet>().AsQueryable()
             };
         }
 
-        public PlanetDto? GetPlanetById(int id)
+        public PlanetDto? GetPlanetById(int id, ClaimsPrincipal user)
         {
-            return _context.Planets
+            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+            var assignedId = int.Parse(user.FindFirst("AssignedPlanetId")?.Value ?? "0");
+
+            var query = _context.Planets
                 .Where(p => p.Id == id)
                 .Select(p => new PlanetDto
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Description = p.Description,
+                    PlanetType = p.PlanetType,
                     Factors = p.PlanetFactors.Select(pf => new PlanetFactorDto
                     {
                         Id = pf.Id,
@@ -55,22 +57,39 @@ namespace PlanetaryMigration.Application.Services
                         Unit = pf.Factor.Unit,
                         Weight = pf.Factor.Weight
                     }).ToList()
-                })
-                .FirstOrDefault();
+                });
+
+            return role switch
+            {
+                nameof(UserRole.SuperAdmin) => query.FirstOrDefault(),
+                nameof(UserRole.PlanetAdmin) => assignedId == id ? query.FirstOrDefault() : null,
+                nameof(UserRole.ViewerType1) => query.Where(p => p.PlanetType == PlannetType.TYPE_1.ToString()).FirstOrDefault(),
+                nameof(UserRole.ViewerType2) => query.Where(p => p.PlanetType == PlannetType.TYPE_2.ToString()).FirstOrDefault(),
+                _ => null
+            };
         }
 
-        public Planet CreatePlanet(CreatePlanetRequest planet)
+        public Planet CreatePlanet(CreatePlanetRequest request, ClaimsPrincipal user)
         {
-            var factors = _mapper.Map<List<PlanetFactor>>(planet.Factors);
+            var role = user.FindFirst(ClaimTypes.Role)?.Value;
+            if (role != nameof(UserRole.SuperAdmin))
+                throw new UnauthorizedAccessException();
 
             var newPlanet = new Planet
             {
-                Name = planet.Name,
-                Description = planet.Description,
-                PlanetFactors = factors
+                Name = request.Name,
+                Description = request.Description,
+                PlanetType = request.PlanetType,
+                PlanetFactors = request.Factors.Select(f => new PlanetFactor
+                {
+                    FactorId = f.Id,
+                    Value = f.Value
+                }).ToList()
             };
+
             _context.Planets.Add(newPlanet);
             _context.SaveChanges();
+
             return newPlanet;
         }
 
@@ -86,8 +105,15 @@ namespace PlanetaryMigration.Application.Services
             _context.SaveChanges();
         }
 
-        public void DeletePlanet(int id)
+        public void DeletePlanet(int id, ClaimsPrincipal user)
         {
+            var users = _context.Users.Where(u => u.AssignedPlanetId == id).ToList();
+            foreach (var u in users)
+            {
+                u.AssignedPlanetId = null; // if nullable
+            }
+            _context.SaveChanges();
+
             var planet = _context.Planets.Find(id);
             if (planet != null)
             {
@@ -96,28 +122,20 @@ namespace PlanetaryMigration.Application.Services
             }
         }
 
-        public PlanetFactor AddFactorToPlanet(int planetId, PlanetFactor factor, ClaimsPrincipal user)
-        {
-            if (!HasAccessToPlanet(planetId, user))
-                throw new UnauthorizedAccessException();
-
-            factor.PlanetId = planetId;
-            _context.PlanetFactors.Add(factor);
-            _context.SaveChanges();
-            return factor;
-        }
-
         public bool HasAccessToPlanet(int planetId, ClaimsPrincipal user)
         {
             var role = user.FindFirst(ClaimTypes.Role)?.Value;
             var assignedId = int.Parse(user.FindFirst("AssignedPlanetId")?.Value ?? "0");
 
+            var planet = _context.Planets.Find(planetId);
+            if (planet == null) return false;
+
             return role switch
             {
                 nameof(UserRole.SuperAdmin) => true,
                 nameof(UserRole.PlanetAdmin) => planetId == assignedId,
-                nameof(UserRole.ViewerType1) => planetId == 1,
-                nameof(UserRole.ViewerType2) => planetId == 1 || planetId == 3,
+                nameof(UserRole.ViewerType1) => planet.PlanetType == PlannetType.TYPE_1.ToString(),
+                nameof(UserRole.ViewerType2) => planet.PlanetType == PlannetType.TYPE_2.ToString(),
                 _ => false
             };
         }
